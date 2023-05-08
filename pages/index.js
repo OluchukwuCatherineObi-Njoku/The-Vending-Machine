@@ -10,7 +10,8 @@ import Form from 'react-bootstrap/Form';
 import { Button } from "react-bootstrap";
 import { useState , useEffect } from "react";
 import Head from "next/head";
-
+import { useRef } from 'react'
+import Modal from 'react-bootstrap/Modal';
 
 const merch = {
   100 : 1.25,
@@ -24,36 +25,105 @@ const merch = {
   108 : 1.25
 }
 
+
+function Disclaimer() {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  handleShow();
+  return (
+    <>
+
+      <Modal show={show} onHide={handleClose} animation={false}>
+        <Modal.Header closeButton>
+          <Modal.Title>Disclaimer</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>These are not actually for sale, it is simply for a cool experience.<br />
+        There is also no limit to purchasing. <br />
+        Welcome to the Vending Machine.
+         </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+}
+
+
+export function ReactionAudio() {
+  const audioRef = useRef(null)
+
+  useEffect(() => {
+    audioRef.current.play()
+  }, [])
+
+  return <audio ref={audioRef} src="/cash-register-purchase-87313.mp3" />
+}
+
+let prev = 0;
+let i = 0;
+
 export default function Home(){
   const [currItem, setCurrItem] = useState(null);
   const [coinValue, setCoinValue] = useState(0);
   const [itemPrice, setItemPrice] = useState(null);
+  const [target, setTarget] = useState([]);
+
+
+  useEffect(() => {
+
+    if (coinValue && itemPrice > 0) {
+      if (coinValue >= itemPrice) {
+        setCoinValue(prev => prev -= itemPrice);
+        setItemPrice(0);
+      }
+      else if(coinValue < itemPrice){
+        setItemPrice(prev => prev -= coinValue);
+        setCoinValue(0);
+      }
+    }
+
+
+    if(currItem && itemPrice == 0){
+      const selected = document.getElementById(currItem);    
+      if (selected != prev)
+        setTarget([...target,{src: selected.getAttribute('src'), alt: selected.getAttribute('alt')}]);
+      prev = selected; 
+      selected.classList.add('bg-success');
+      
+    }
+    
+  }, [coinValue, itemPrice])
+
 
   function handleClick(id){
-    setCurrItem(id);
-    setItemPrice(merch[id]);
+    if(id != currItem || (id == currItem && itemPrice == 0)){
+      setCurrItem(id);
+      setItemPrice(merch[id]);
+    }
+
+    console.log(prev);
+    if (prev) {
+      prev.classList.remove('bg-success');
+    }
   }
 
   function addCoin(e){
     e.preventDefault();
     let coin = parseFloat(e.target[0].value)
   
-   if (coin && itemPrice){
-
-    setCoinValue(prev => prev + coin);
-
-    if (coinValue > 0 && coinValue >= itemPrice) {
-       setCoinValue(prev => prev - itemPrice);
-       setItemPrice(0);
-       console.log("if coin > price: ", coinValue, itemPrice);
-     }
-     else if(coinValue > 0 && coinValue < itemPrice){
-       setItemPrice(prev => prev - coinValue);
-       setCoinValue(0);
-       console.log("if coin < price: ", coinValue, itemPrice);
-     }
+   if (coin){
+    setCoinValue(prevCoin => prevCoin += coin);   
    }
-    
+  }
+
+  function disclaim(){
+    return <Disclaimer />
   }
 
   return(
@@ -76,7 +146,7 @@ export default function Home(){
 
           <Col className="border m-auto text-center" style={{padding : "3%"}}>
 
-            <Image className="mx-auto d-block border" src="/doll.png" alt="Doll Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} />
+            <Image className="mx-auto d-block border" id="100" src="/doll.png" alt="Doll Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} />
             <div className="border text-center">100  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.25
             </span>   
             </div>
@@ -94,7 +164,8 @@ export default function Home(){
 
             </Col>
 
-          <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/donation.png" alt="Donation Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">101  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.35</span></div>
+          <Col className="border m-auto text-center" style={{padding : "3%"}} >
+            <Image className="mx-auto d-block border" src="/donation.png" id="101" alt="Donation Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">101  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.35</span></div>
           <button style={
               {
               border: "none", 
@@ -106,7 +177,8 @@ export default function Home(){
               fontSize: "13px",
               }} onClick={() => {handleClick(101)}}>s</button></Col>
 
-          <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/mouse-toy.png" alt="Mouse Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">102  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.25</span></div>
+          <Col className="border m-auto text-center" style={{padding : "3%"}} >
+            <Image className="mx-auto d-block border" src="/mouse-toy.png" id="102" alt="Mouse Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">102  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.25</span></div>
           <button style={
               {
               border: "none", 
@@ -122,7 +194,8 @@ export default function Home(){
 
 
       <Row>
-        <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/teddy-bear.png" alt="Teddy Bear Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">103  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.15</span></div>
+        <Col className="border m-auto text-center" style={{padding : "3%"}} >
+          <Image className="mx-auto d-block border" src="/teddy-bear.png" id="103" alt="Teddy Bear Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">103  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.15</span></div>
         <button style={
               {
               border: "none", 
@@ -135,7 +208,8 @@ export default function Home(){
               }} onClick={() => {handleClick(103)}}>s</button>
         </Col>
 
-        <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/toy-car.png" alt="Toy Car Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">104  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.20</span></div>
+        <Col className="border m-auto text-center" style={{padding : "3%"}} >
+          <Image className="mx-auto d-block border" src="/toy-car.png" id="104" alt="Toy Car Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">104  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.20</span></div>
         <button style={
               {
               border: "none", 
@@ -148,7 +222,8 @@ export default function Home(){
               }} onClick={() => {handleClick(104)}}>s</button>
         </Col>
 
-        <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/toy.png" alt="Moving Vehicle Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">105  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.15</span></div>
+        <Col className="border m-auto text-center" style={{padding : "3%"}} >
+          <Image className="mx-auto d-block border" src="/toy.png" id="105" alt="Moving Vehicle Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">105  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.15</span></div>
         <button style={
               {
               border: "none", 
@@ -163,7 +238,8 @@ export default function Home(){
       </Row>
 
       <Row>
-        <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/aeroplane.png" alt="Aeroplane Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">106  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.17</span></div>
+        <Col className="border m-auto text-center" style={{padding : "3%"}} >
+          <Image className="mx-auto d-block border" id="106" src="/aeroplane.png" alt="Aeroplane Toy Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">106  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.17</span></div>
         <button style={
               {
               border: "none", 
@@ -175,7 +251,8 @@ export default function Home(){
               fontSize: "13px",
               }} onClick={() => {handleClick(106)}}>s</button>
         </Col>
-        <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/rc-car.png" alt="Rc-Car Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">107  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.20</span></div>
+        <Col className="border m-auto text-center" style={{padding : "3%"}} >
+          <Image className="mx-auto d-block border" src="/rc-car.png" id="107" alt="Rc-Car Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">107  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.20</span></div>
         <button style={
               {
               border: "none", 
@@ -188,7 +265,8 @@ export default function Home(){
               }} onClick={() => {handleClick(107)}}>s</button>
         </Col>
 
-        <Col className="border m-auto text-center" style={{padding : "3%"}}><Image className="mx-auto d-block border" src="/toy-shop.png" alt="Toy Shop Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">108  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.25</span></div>
+        <Col className="border m-auto text-center" style={{padding : "3%"}} >
+          <Image className="mx-auto d-block border" src="/toy-shop.png" id="108" alt="Toy Shop Icon Image" width = "100" height = "100" fluid="true" style={{padding : "3%"}} /><div  className="border text-center">108  <span style={{border: "1px solid grey", padding: ".3%"}}>$1.25</span></div>
         <button style={
               {
               border: "none", 
@@ -222,10 +300,13 @@ export default function Home(){
 
             }}> 
 
+            {coinValue >= 0 && <div> Credit : {coinValue} <br /></div>}
             {currItem &&
-            <p>Item : {currItem} <br />
-              Price : ${itemPrice}<br />
-              Credit : {coinValue}</p>}
+            <div>
+              Item : {currItem} <br />
+              Price : ${itemPrice}
+              </div>}
+            {(currItem && itemPrice == 0) && <ReactionAudio />}
 
           </div>
         </Col>
@@ -264,6 +345,15 @@ export default function Home(){
       
         </Col>
       </Row>
+      <Row className="border">
+        <Col
+        style={{
+          height: "100px"
+        }}
+        >
+        {target.length > 0 && target.map((current) => (<Image key={i++} src={current.src} alt={current.alt} width = "50" height = "50" fluid="true"  />))}
+        </Col>
+      </Row>
       
         
       </Container>
@@ -272,47 +362,6 @@ export default function Home(){
 
       // Put disclaimer that the goods are not actually for sale
       
-      // <Container
-      //   style={{
-      //     backgroundImage: `url('/animated-gifs-of-fighting-game-backgrounds-36.gif.crdownload')`,
-      //     backgroundSize: 'cover',
-      //     backgroundPosition: 'center center',
-      //     backgroundRepeat: 'no-repeat',
-      //   }}
-      // >
-
-      //   <Table responsive className="tab">
-
-      //     <tbody className="border">
-      //         <tr className="border">
-      //         <td ><Image className="img mx-auto d-block"  src="/alison-wang-mou0S7ViElQ-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td ><Image className="img mx-auto d-block"  src="/giorgio-trovato-p0OlRAAYXLY-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td ><Image className="img mx-auto d-block"  src="/jose-betancourt-NHIP7M3EB9w-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td>Screen</td>
-      //       </tr>
-      //       <tr className="border">
-      //         <td ><Image className="img mx-auto d-block"  src="/anton-darius-WoRuw4l2Xyo-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td ><Image className="img mx-auto d-block"  src="/ryan-quintal-xioKwVlp5jE-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td ><Image className="img mx-auto d-block"  src="/danny-wage-Q4vWchoavUs-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td>Button</td>
-      //       </tr>
-      //       <tr className="border">
-      //         <td ><Image className="img mx-auto d-block"  src="/paige-cody-nLdDrH53BkA-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td ><Image className="img mx-auto d-block"  src="/zane-lee-KYhAYwhpQH4-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td ><Image className="img mx-auto d-block"  src="/rock-n-roll-monkey-LEPhZkQbUrk-unsplash_adobe_express.svg" alt="Example Image" width = "100" height = "100" fluid="true" style={{ objectFit: "cover", width: "60%", height: "60%" }} /></td>
-      //         <td>Pay</td>
-      //       </tr>
-      //       <tr>
-      //       <td colSpan="5" rowSpan="3" className="border">Lower Box</td>
-      //       </tr>
-          
-            
-            
-      //     </tbody>
-      //   </Table>
-
-      // </Container>
-
       
   )
 }
