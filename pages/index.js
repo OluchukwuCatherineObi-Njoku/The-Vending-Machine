@@ -26,33 +26,92 @@ const merch = {
 }
 
 
-function Disclaimer() {
+export function Disclaimer() {
+
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  
 
-  handleShow();
   return (
     <>
 
+      <div className="d-flex justify-content-end">
+      <Button variant="primary" onClick={handleShow} style={{backgroundColor: "white", color: "black"}}>
+        Disclaimer
+      </Button>
+      </div>
+      
+      
       <Modal show={show} onHide={handleClose} animation={false}>
-        <Modal.Header closeButton>
-          <Modal.Title>Disclaimer</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>These are not actually for sale, it is simply for a cool experience.<br />
-        There is also no limit to purchasing. <br />
-        Welcome to the Vending Machine.
-         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Modal.Header closeButton>
+        <Modal.Title>Disclaimer</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>These are not actually for sale, it is simply for a cool experience.<br />
+      There is also no limit to purchasing. <br />
+      Also, image references are situated at the bottom <br />
+      Welcome to the Vending Machine.
+       </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+      
+      
     </>
   );
 }
+
+
+export function References() {
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  
+
+  return (
+    <>
+
+      <div className="d-flex justify-content-end">
+      <Button variant="primary" onClick={handleShow} style={{backgroundColor: "white", color: "black"}}>
+        References
+      </Button>
+      </div>
+      
+      
+      <Modal show={show} onHide={handleClose} animation={false}>
+      <Modal.Header closeButton>
+        <Modal.Title>References</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+      <a href="https://www.flaticon.com/free-icons/cat-toy" title="cat toy icons">Cat toy icons created by Freepik - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/bear" title="bear icons">Bear icons created by Freepik - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/doll" title="doll icons">Doll icons created by Freepik - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/kid-and-baby" title="kid and baby icons">Kid and baby icons created by Prashanth Rapolu 15 - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/donation" title="donation icons">Donation icons created by Freepik - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/toys" title="toys icons">Toys icons created by Freepik - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/plane" title="plane icons">Plane icons created by Freepik - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/toys" title="toys icons">Toys icons created by Smashicons - Flaticon</a><br />
+      <a href="https://www.flaticon.com/free-icons/toy-shop" title="toy shop icons">Toy shop icons created by Smashicons - Flaticon</a><br />
+
+       </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+      
+      
+    </>
+  );
+}
+
 
 
 export function ReactionAudio() {
@@ -122,9 +181,6 @@ export default function Home(){
    }
   }
 
-  function disclaim(){
-    return <Disclaimer />
-  }
 
   return(
     <div>
@@ -137,6 +193,8 @@ export default function Home(){
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet"></link>
       </Head>
     
+      <Disclaimer />
+
     <Container style={{padding : "3%", overflow : "hidden"}}>
       <Row className="border">
 
@@ -289,14 +347,15 @@ export default function Home(){
         <Col md = {12} className="d-flex justify-content-center">
         <div  
         style={{
-              backgroundImage: `url('/Download free image of Aesthetic water iPhone wallpaper abstract design by Sasi about iphone background, pattern, water surface, pool water, .jpg')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center center',
-              backgroundRepeat: 'no-repeat',
+              // backgroundImage: `url('/Download free image of Aesthetic water iPhone wallpaper abstract design by Sasi about iphone background, pattern, water surface, pool water, .jpg')`,
+              // backgroundSize: 'cover',
+              // backgroundPosition: 'center center',
+              // backgroundRepeat: 'no-repeat',
               width : "230px",
               height: "230px",
               padding: "30px",
-              marginBottom: "20px"
+              marginBottom: "20px",
+              border: "1px solid grey"
 
             }}> 
 
@@ -355,7 +414,7 @@ export default function Home(){
         </Col>
       </Row>
       
-        
+      <References />
       </Container>
 
       </div>
